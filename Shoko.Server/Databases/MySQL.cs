@@ -1145,6 +1145,7 @@ public class MySQL(SystemService systemService) : BaseDatabase<MySqlConnection>(
                      WHERE sri.`CrossReferences` LIKE '%AnidbEpisodeID%'
                      """),
         new(184,  1, "ALTER TABLE `VideoLocal` DROP COLUMN `MyListID`;"),
+        new(185,  1, "ALTER TABLE `TMDB_Episode` ADD COLUMN `TmdbEpisodeType` VARCHAR(50) NULL DEFAULT NULL;"),
     ];
 
     #endregion

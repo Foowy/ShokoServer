@@ -1098,6 +1098,7 @@ public class SQLServer(SystemService systemService) : BaseDatabase<SqlConnection
         new(180, 37, "ALTER TABLE TMDB_Title ADD CONSTRAINT PK_TMDB_Title PRIMARY KEY CLUSTERED (TMDB_TitleID);"),
         new(180, 38, "ALTER TABLE VideoLocal_HashDigest ADD CONSTRAINT PK_VideoLocal_HashDigest PRIMARY KEY CLUSTERED (VideoLocal_HashDigestID);"),
         new(181,  1, DropVideoLocalMylistID),
+        new(182,  1, "ALTER TABLE TMDB_Episode ADD TmdbEpisodeType NVARCHAR(50) NULL DEFAULT NULL;"),
     ];
 
     #endregion
