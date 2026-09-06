@@ -1015,6 +1015,7 @@ public class SQLite(SystemService systemService) : BaseDatabase<SqliteConnection
         new(167, 13, DatabaseFixes.SeedAnilistAiringSchedules),
         new(168,  1, "CREATE TABLE AiringScheduleSweepState ( AiringScheduleSweepStateID INTEGER PRIMARY KEY AUTOINCREMENT, ProviderID TEXT NOT NULL, [Cursor] TEXT NULL, LastRunAt DATETIME NOT NULL, LastOutcome INTEGER NOT NULL, NoProgressCount INTEGER NOT NULL );"),
         new(168,  2, "CREATE UNIQUE INDEX UIX_AiringScheduleSweepState_ProviderID ON AiringScheduleSweepState(ProviderID);"),
+        new(169,  1, "ALTER TABLE TMDB_Episode ADD COLUMN TmdbEpisodeType TEXT NULL DEFAULT NULL;"),
     ];
 
     #endregion

@@ -1324,6 +1324,7 @@ public class MySQL(SystemService systemService) : BaseDatabase<MySqlConnection>(
         new(188, 13, DatabaseFixes.SeedAnilistAiringSchedules),
         new(189,  1, "CREATE TABLE `AiringScheduleSweepState` ( `AiringScheduleSweepStateID` INT NOT NULL AUTO_INCREMENT, `ProviderID` VARCHAR(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, `Cursor` VARCHAR(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL, `LastRunAt` DATETIME NOT NULL, `LastOutcome` TINYINT UNSIGNED NOT NULL, `NoProgressCount` INT NOT NULL, PRIMARY KEY (`AiringScheduleSweepStateID`) );"),
         new(189,  2, "CREATE UNIQUE INDEX `UIX_AiringScheduleSweepState_ProviderID` ON `AiringScheduleSweepState`(`ProviderID`);"),
+        new(190,  1, "ALTER TABLE `TMDB_Episode` ADD COLUMN `TmdbEpisodeType` VARCHAR(50) NULL DEFAULT NULL;"),
     ];
 
     #endregion
