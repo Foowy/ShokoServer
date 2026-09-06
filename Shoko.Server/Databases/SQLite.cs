@@ -945,6 +945,7 @@ public class SQLite(SystemService systemService) : BaseDatabase<SqliteConnection
                      WHERE CrossReferences LIKE '%AnidbEpisodeID%'
                      """),
         new(163,  1, "ALTER TABLE VideoLocal DROP COLUMN MyListID;"),
+        new(164,  1, "ALTER TABLE TMDB_Episode ADD COLUMN TmdbEpisodeType TEXT NULL DEFAULT NULL;"),
     ];
 
     #endregion
