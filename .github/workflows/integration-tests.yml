@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          submodules: recursive
 
       - name: Install system dependencies
         run: sudo apt-get install -y mediainfo librhash-dev
@@ -51,6 +53,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          submodules: recursive
 
       - name: Install system dependencies
         run: sudo apt-get install -y mediainfo librhash-dev
@@ -91,6 +95,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          submodules: recursive
 
       - name: Install system dependencies
         run: sudo apt-get install -y mediainfo librhash-dev
