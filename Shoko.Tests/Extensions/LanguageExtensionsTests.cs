@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Shoko.Abstractions.Extensions;
 using Shoko.Abstractions.Metadata.Enums;
 using Xunit;
@@ -59,4 +60,17 @@ public class LanguageExtensionsTests
     [InlineData(TitleLanguage.English, TitleLanguage.English)]
     public void GetSpokenLanguage_ResolvesTranscriptions(TitleLanguage language, TitleLanguage expected)
         => Assert.Equal(expected, language.GetSpokenLanguage());
+
+    [Fact]
+    public async Task GetTitleLanguage_ConcurrentUnknownStrings_DoesNotThrow()
+    {
+        var tasks = new List<Task>();
+        for (var i = 0; i < 100; i++)
+        {
+            var lang = $"unknown-{i % 10}";
+            tasks.Add(Task.Run(() => lang.GetTitleLanguage()));
+        }
+
+        await Task.WhenAll(tasks);
+    }
 }
