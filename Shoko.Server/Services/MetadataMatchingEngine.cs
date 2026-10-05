@@ -120,6 +120,11 @@ public class MetadataMatchingEngine(
     /// </summary>
     private const double MinAlignedCoverage = 0.8;
 
+    /// <summary>
+    ///   How many days apart a candidate season's run and the anime's may be before a shared year stops counting.
+    /// </summary>
+    private const int MaxDaysBetweenRuns = 3;
+
     #endregion
 
     #region Series
@@ -207,6 +212,10 @@ public class MetadataMatchingEngine(
                 candidate.FirstAiredAt?.Year == wanted ||
                 candidate.SeasonYear == wanted
             );
+
+            // A year alone is weak: no season running within days of the anime's run means it is not the anime, unless a season not fetched starts within it.
+            if (dateMatches && alignment is null && RunsApart(datedEpisodes, seasons))
+                dateMatches = false;
 
             // Where the years fail (a year-boundary premiere, a split cour),
             // first episodes airing within days of each other still agree.
@@ -541,6 +550,23 @@ public class MetadataMatchingEngine(
         MatchRating.TitleKindaMatches => 5,
         _ => 6,
     };
+
+    private static bool RunsApart(IReadOnlyList<DatedEpisode> anidb, IReadOnlyList<MetadataSearchResultSeason> seasons)
+    {
+        if (anidb.Count is 0)
+            return false;
+
+        var first = anidb.Min(episode => episode.Date.DayNumber);
+        var last = anidb.Max(episode => episode.Date.DayNumber);
+        var runs = seasons
+            .Select(season => season.Episodes?.Where(episode => episode.AiredAt is not null).Select(episode => episode.AiredAt!.Value.DayNumber).ToList())
+            .Where(days => days is { Count: > 0 })
+            .ToList();
+        var startsDuringRun = seasons.Any(season => season.Episodes is not { Count: > 0 } &&
+            season.FirstAiredAt is { IsComplete: true } began &&
+            began.ToDateOnly().DayNumber >= first - MaxDaysBetweenRuns && began.ToDateOnly().DayNumber <= last + MaxDaysBetweenRuns);
+        return runs.Count > 0 && !startsDuringRun && runs.All(days => Math.Max(first - days!.Max(), days!.Min() - last) > MaxDaysBetweenRuns);
+    }
 
     private static MatchRating Rate(TitleEvidence title, bool dateMatches)
         => (title >= TitleEvidence.ExactWithoutSuffix, title is TitleEvidence.Close, dateMatches) switch

@@ -1408,6 +1408,47 @@ public class MetadataMatchingEngineTests
         Assert.Equal((9, 9), (match.EpisodeAlignment?.MatchedEpisodes, match.EpisodeAlignment?.DatedEpisodes));
     }
 
+    // The same year is no evidence when the episodes the candidate lists
+    // aired months from the anime's.
+    [Theory]
+    [InlineData(true, MatchRating.None)]
+    [InlineData(false, MatchRating.DateMatches)]
+    public void MatchSeries_AYearAloneDoesNotCount_WhenTheEpisodesAreMonthsApart(bool listsEpisodes, MatchRating expected)
+    {
+        var anime = SeriesAnime(new(2024, 1, 7), 12);
+        var season = Season(1, 12, new(2024, 10, 5)) with { Episodes = listsEpisodes ? Weekly(new(2024, 10, 5), 1, 12) : null };
+        var match = Assert.Single(Matcher().MatchSeries(anime, [Series("1", "Unrelated", aired: new(2024, 10, 5), seasons: [season])], new() { Query = "Kaguya" }));
+        Assert.Equal(expected, match.Rating);
+    }
+
+    [Fact]
+    public void MatchSeries_AYearStillCounts_WhenTheEpisodesAreDaysApart()
+    {
+        var anime = SeriesAnime(new(2024, 1, 7), 12);
+        var season = Season(1, 12, new(2024, 1, 12)) with { Episodes = Weekly(new(2024, 1, 12), 1, 12) };
+        var match = Assert.Single(Matcher().MatchSeries(anime, [Series("1", "Unrelated", aired: new(2024, 1, 12), seasons: [season])], new() { Query = "Kaguya" }));
+        Assert.Equal(MatchRating.DateMatches, match.Rating);
+    }
+
+    [Fact]
+    public void MatchSeries_AYearDoesNotCount_WhenTheCandidateRunsRightAfterTheAnime()
+    {
+        var anime = SeriesAnime(new(2024, 1, 7), 12);
+        var season = Season(1, 12, new(2024, 4, 5)) with { Episodes = Weekly(new(2024, 4, 5), 1, 12) };
+        var match = Assert.Single(Matcher().MatchSeries(anime, [Series("1", "Unrelated", aired: new(2024, 4, 5), seasons: [season])], new() { Query = "Kaguya" }));
+        Assert.Equal(MatchRating.None, match.Rating);
+    }
+
+    [Fact]
+    public void MatchSeries_AYearStillCounts_WhenAnotherSeasonStartsDuringTheAnimesRun()
+    {
+        var anime = SeriesAnime(new(2024, 10, 5), 12);
+        var listed = Season(1, 12, new(2024, 4, 5)) with { Episodes = Weekly(new(2024, 4, 5), 1, 12) };
+        var unfetched = Season(2, 12, new(2024, 10, 12));
+        var match = Assert.Single(Matcher().MatchSeries(anime, [Series("1", "Unrelated", aired: new(2024, 4, 5), seasons: [listed, unfetched])], new() { Query = "Kaguya" }));
+        Assert.Equal(MatchRating.DateMatches, match.Rating);
+    }
+
     // Half the episodes on the anime's days is no evidence.
     [Fact]
     public void MatchSeries_AWeakAlignmentChangesNothing()
