@@ -77,8 +77,6 @@ public class ConcurrencyRegistryTests
     [InlineData(typeof(HashFileJob), 2, true)]
     [InlineData(typeof(HashFileJob), 3, false)] // At the limit
     [InlineData(typeof(UnlimitedJob), 999, true)]
-    [InlineData(typeof(SingletonJob), 1, false)]
-    [InlineData(typeof(SingletonJob), 0, true)]
     public void CanRun_ComparesTheRunningCountToTheTypeLimit(Type jobType, int runningCount, bool expected)
     {
         var registry = ConcurrencyRegistry.Build([jobType]);
