@@ -210,12 +210,14 @@ public class WorkerPoolAcquisitionTests
     [Fact]
     public void TryAcquire_OrchestratorDeniesFirst_AcceptsSecond()
     {
-        var callCount = 0;
+        Guid? deniedId = null;
         var pool = MakePool(typeof(JobTypeA));
-        pool.TryRegisterExecuting = _ =>
+        pool.TryRegisterExecuting = job =>
         {
-            callCount++;
-            return callCount > 1; // deny first call, accept second
+            if (deniedId is not null)
+                return true;
+            deniedId = job.Id; // deny the first call, accept the second
+            return false;
         };
 
         var job1 = MakeJob(typeof(JobTypeA));
@@ -228,6 +230,8 @@ public class WorkerPoolAcquisitionTests
         var acquired = pool.TryAcquire();
 
         Assert.NotNull(acquired);
+        Assert.NotEqual(deniedId, acquired!.Id);
+        Assert.Equal(1, pool.WaitingCount); // the denied job stays queued
     }
 
     [Fact]
