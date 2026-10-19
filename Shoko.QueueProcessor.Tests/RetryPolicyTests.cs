@@ -80,6 +80,16 @@ public class RetryPolicyTests
         public Task Process() => Task.CompletedTask;
     }
 
+    [RetryPolicy(MaxRetries = 3)]
+    private class MaxRetriesOnlyJob : IQueueJob
+    {
+        public string TypeName => "MaxRetriesOnlyJob";
+        public string Title => "";
+        public Dictionary<string, object> Details => [];
+        public void PostInit() { }
+        public Task Process() => Task.CompletedTask;
+    }
+
     [Fact]
     public void Resolver_NoAttribute_ReturnsGlobal()
     {
@@ -99,13 +109,23 @@ public class RetryPolicyTests
     }
 
     [Fact]
-    public void Resolver_PartialAttributeOverride_MergesWithGlobal()
+    public void Resolver_FullAttributeOverride_UsesAttributeValues()
     {
         var policy = _resolver.For(typeof(ShortRetryJob));
 
         Assert.Equal(3, policy.MaxRetries);
         Assert.Equal(60, policy.BaseDelay.TotalSeconds);
         Assert.Equal(600, policy.MaxDelay.TotalSeconds);
+    }
+
+    [Fact]
+    public void Resolver_PartialAttributeOverride_MergesWithGlobal()
+    {
+        var policy = _resolver.For(typeof(MaxRetriesOnlyJob));
+
+        Assert.Equal(3, policy.MaxRetries);
+        Assert.Equal(_global.BaseDelay, policy.BaseDelay);
+        Assert.Equal(_global.MaxDelay, policy.MaxDelay);
     }
 
     [Fact]
