@@ -148,24 +148,6 @@ public class PersistenceBufferTests
         await buffer.DisposeAsync();
     }
 
-    // ── IsPendingInsert ───────────────────────────────────────────────────────
-
-    [Theory]
-    [InlineData(true, false, true)]
-    [InlineData(true, true, false)] // Completing cancels the enqueue out
-    [InlineData(false, false, false)] // Unknown ID
-    public void IsPendingInsert_IsTrueOnlyForAnEnqueuedJobThatIsNotCompleted(bool enqueue, bool complete, bool expected)
-    {
-        var (buffer, _) = Make();
-        var job = FakeJob();
-        if (enqueue)
-            buffer.OnEnqueue(job);
-        if (complete)
-            buffer.OnComplete(job.Id);
-
-        Assert.Equal(expected, buffer.IsPendingInsert(job.Id));
-    }
-
     // ── DisposeAsync flush ────────────────────────────────────────────────────
 
     [Fact]

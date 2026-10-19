@@ -346,27 +346,6 @@ public sealed class WorkerPool : IWorkerPool
     }
 
     /// <summary>
-    /// Clears all waiting jobs from the sub-queue.
-    /// </summary>
-    public void ClearQueue()
-    {
-        lock (_subQueueLock)
-        {
-            _subQueue.Clear();
-            _subQueueById.Clear();
-            _subQueueByKey.Clear();
-            _waitingCount = 0;
-        }
-        InvalidateCounts();
-    }
-
-    /// <summary>Number of waiting jobs with <c>RetryCount &gt; 0</c>.</summary>
-    public int RetryingCount
-    {
-        get { lock (_subQueueLock) return _subQueue.Count(j => j.RetryCount > 0); }
-    }
-
-    /// <summary>
     /// Number of waiting jobs held back (their type excluded by an acquisition filter, or their
     /// actor not restorable yet) that are <em>not</em> deferred to a future
     /// <see cref="QueuedJob.ScheduledAt"/> — a job waiting on its scheduled time is counted as

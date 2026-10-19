@@ -51,8 +51,6 @@ public class JobChainContext
     private readonly List<JobResult> _results = [];
     private readonly List<JobOutcome> _outcomes = [];
 
-    internal bool IsDirty { get; private set; }
-
     public Guid ChainId { get; }
     public ChainStatus Status { get; private set; }
 
@@ -79,7 +77,6 @@ public class JobChainContext
     public void SetData<T>(string key, T? value)
     {
         _data[key] = JsonSerializer.Serialize(value);
-        IsDirty = true;
     }
 
     // ── Typed job results ────────────────────────────────────────────────────────────────────────
@@ -112,7 +109,6 @@ public class JobChainContext
     internal void SetResult<T>(Guid jobId, string jobKey, T value)
     {
         _results.Add(new JobResult { JobId = jobId, JobKey = jobKey, Json = JsonSerializer.Serialize(value) });
-        IsDirty = true;
     }
 
     // ── Outcome tracking ─────────────────────────────────────────────────────────────────────────
@@ -137,16 +133,13 @@ public class JobChainContext
     internal void AddOutcome(JobOutcome outcome)
     {
         _outcomes.Add(outcome);
-        IsDirty = true;
     }
 
     internal void SetStatus(ChainStatus status)
     {
         Status = status;
-        IsDirty = true;
     }
 
-    internal void MarkClean() => IsDirty = false;
 
     // ── Serialization helpers (used by JobChainContextRepository) ────────────────────────────────
 
