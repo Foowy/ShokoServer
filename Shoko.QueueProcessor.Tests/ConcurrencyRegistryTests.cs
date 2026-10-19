@@ -15,7 +15,7 @@ public class ConcurrencyRegistryTests
     [DisallowConcurrencyGroup("AniDB_UDP")]
     private class AniDBUdpJobA { }
 
-    [LimitConcurrency(2, maxAllowedConcurrentJobs: 4)]
+    [LimitConcurrency(3, maxAllowedConcurrentJobs: 4)]
     [DisallowConcurrencyGroup("AniDB_UDP")]
     private class AniDBUdpJobB { }
 
@@ -42,8 +42,11 @@ public class ConcurrencyRegistryTests
     [Fact]
     public void Build_GroupLimit_DerivedFromMinTypeLimit()
     {
-        var registry = ConcurrencyRegistry.Build([typeof(AniDBUdpJobA), typeof(AniDBUdpJobB)]);
-        Assert.Equal(2, registry.GetGroupLimit("AniDB_UDP"));
+        var lowestFirst = ConcurrencyRegistry.Build([typeof(AniDBUdpJobA), typeof(AniDBUdpJobB)]);
+        var lowestLast = ConcurrencyRegistry.Build([typeof(AniDBUdpJobB), typeof(AniDBUdpJobA)]);
+
+        Assert.Equal(2, lowestFirst.GetGroupLimit("AniDB_UDP"));
+        Assert.Equal(2, lowestLast.GetGroupLimit("AniDB_UDP"));
     }
 
     [Theory]
