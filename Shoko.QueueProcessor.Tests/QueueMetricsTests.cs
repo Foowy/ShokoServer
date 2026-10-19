@@ -13,9 +13,9 @@ public class QueueMetricsTests
     // ── Jobs/sec sliding window ───────────────────────────────────────────────
 
     [Theory]
-    [InlineData(0, false)]
-    [InlineData(10, true)]
-    public void JobsPerSecond_IsPositiveOnlyAfterCompletions(int completions, bool expectedPositive)
+    [InlineData(0, 0.0)]
+    [InlineData(10, 10 / 60.0)] // completions divided by the 60 second window
+    public void JobsPerSecond_IsTheCompletionsInTheWindowOverTheWindowLength(int completions, double expected)
     {
         var metrics = new QueueMetrics(windowSeconds: 60, rollingAvgSamples: 10);
 
@@ -24,10 +24,7 @@ public class QueueMetricsTests
 
         var snap = metrics.GetSnapshot(new Dictionary<string, PoolStatus>(), new Dictionary<string, (int, int)>(), new Dictionary<string, string>(), 0, 0);
 
-        if (expectedPositive)
-            Assert.True(snap.JobsPerSecond > 0);
-        else
-            Assert.Equal(0, snap.JobsPerSecond);
+        Assert.Equal(expected, snap.JobsPerSecond, precision: 6);
     }
 
     // ── Per-type rolling average ──────────────────────────────────────────────
