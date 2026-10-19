@@ -27,14 +27,14 @@ public class WorkerPoolAcquisitionTests
     }
 
     private static QueuedJob MakeJob(Type jobType, int priority = 0,
-        DateTimeOffset? scheduledAt = null, int retryCount = 0) =>
+        DateTimeOffset? scheduledAt = null, int retryCount = 0, DateTimeOffset? queuedAt = null) =>
         new()
         {
             Id = Guid.NewGuid(),
             JobType = jobType.FullName + ", " + jobType.Assembly.GetName().Name,
             JobKey = $"TestJob_{Guid.NewGuid()}",
             Priority = priority,
-            QueuedAt = DateTimeOffset.UtcNow,
+            QueuedAt = queuedAt ?? DateTimeOffset.UtcNow,
             ScheduledAt = scheduledAt,
             RetryCount = retryCount
         };
@@ -118,8 +118,7 @@ public class WorkerPoolAcquisitionTests
         var pool = MakePool(typeof(JobTypeA));
         pool.TryRegisterExecuting = _ => true;
 
-        var earlier = MakeJob(typeof(JobTypeA));
-        Thread.Sleep(5); // ensure different QueuedAt
+        var earlier = MakeJob(typeof(JobTypeA), queuedAt: DateTimeOffset.UtcNow.AddMinutes(-1));
         var later = MakeJob(typeof(JobTypeA));
         pool.AddToQueue(later);
         pool.AddToQueue(earlier);

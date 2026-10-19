@@ -57,18 +57,6 @@ public class JobKeyBuilderTests
         public string InternalState { get; set; } = string.Empty;
     }
 
-    private class ClassPrefixJob : IQueueJob
-    {
-        public string TypeName => "ClassPrefixJob";
-        public string Title => "";
-        public Dictionary<string, object> Details => [];
-        public void PostInit() { }
-        public Task Process() => Task.CompletedTask;
-
-        [JobKeyMember("id")]
-        public int AnimeId { get; set; }
-    }
-
     [JobKeyMember("CustomPrefix")]
     private class CustomPrefixJob : IQueueJob
     {
