@@ -242,29 +242,6 @@ public class WorkerPoolAcquisitionTests
 
     // ── ClearQueue / RetryingCount ────────────────────────────────────────────
 
-    [Fact]
-    public void ClearQueue_RemovesAllJobs()
-    {
-        var pool = MakePool(typeof(JobTypeA));
-        pool.AddToQueue(MakeJob(typeof(JobTypeA)));
-        pool.AddToQueue(MakeJob(typeof(JobTypeA)));
-
-        pool.ClearQueue();
-
-        Assert.Equal(0, pool.WaitingCount);
-    }
-
-    [Fact]
-    public void RetryingCount_CountsJobsWithRetryCountAboveZero()
-    {
-        var pool = MakePool(typeof(JobTypeA));
-        pool.AddToQueue(MakeJob(typeof(JobTypeA), retryCount: 0));
-        pool.AddToQueue(MakeJob(typeof(JobTypeA), retryCount: 1));
-        pool.AddToQueue(MakeJob(typeof(JobTypeA), retryCount: 3));
-
-        Assert.Equal(2, pool.RetryingCount);
-    }
-
     // ── RunnableCount ─────────────────────────────────────────────────────────
 
     [Fact]

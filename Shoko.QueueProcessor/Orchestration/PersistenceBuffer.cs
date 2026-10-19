@@ -229,15 +229,6 @@ public sealed class PersistenceBuffer : IAsyncDisposable
     }
 
     /// <summary>
-    /// Checks whether <paramref name="id"/> is still in the pending-insert buffer
-    /// (i.e., has not yet been persisted to the DB).
-    /// </summary>
-    public bool IsPendingInsert(Guid id)
-    {
-        lock (_bufferLock) return _pendingInserts.ContainsKey(id);
-    }
-
-    /// <summary>
     /// Forces an immediate flush of all pending inserts and deletes.
     /// Called by <see cref="IAsyncDisposable.DisposeAsync"/> on graceful shutdown.
     /// </summary>

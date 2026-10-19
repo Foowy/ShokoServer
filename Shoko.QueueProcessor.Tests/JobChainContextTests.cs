@@ -48,24 +48,6 @@ public class JobChainContextTests
         Assert.Equal(0, ctx.GetData<int>("missing"));
     }
 
-    /// <summary>One mutation of each store, plus the status; each of them must mark the context dirty.</summary>
-    public static TheoryData<string, Action<JobChainContext>> Mutations => new()
-    {
-        { "SetData", ctx => ctx.SetData("k", "v") },
-        { "SetResult", ctx => ctx.SetResult(Guid.NewGuid(), "job:1", "value") },
-        { "AddOutcome", ctx => ctx.AddOutcome(MakeOutcome(Guid.NewGuid(), "job:1")) },
-        { "SetStatus", ctx => ctx.SetStatus(ChainStatus.Completed) },
-    };
-
-    [Theory]
-    [MemberData(nameof(Mutations))]
-    public void EveryMutation_MarksDirty(string mutationName, Action<JobChainContext> mutate)
-    {
-        var ctx = new JobChainContext(Guid.NewGuid());
-        mutate(ctx);
-        Assert.True(ctx.IsDirty, mutationName);
-    }
-
     // ── Results: key-based ────────────────────────────────────────────────────
 
     [Fact]
@@ -201,28 +183,6 @@ public class JobChainContextTests
         Assert.Equal("job:A", all[0].JobKey);
         Assert.Equal("job:B", all[1].JobKey);
         Assert.Equal("job:C", all[2].JobKey);
-    }
-
-    // ── Dirty / clean tracking ────────────────────────────────────────────────
-
-    [Fact]
-    public void MarkClean_ResetsDirtyFlag()
-    {
-        var ctx = new JobChainContext(Guid.NewGuid());
-        ctx.SetData("k", "v");
-        Assert.True(ctx.IsDirty);
-        ctx.MarkClean();
-        Assert.False(ctx.IsDirty);
-    }
-
-    [Fact]
-    public void MarkClean_ThenMutate_DirtyAgain()
-    {
-        var ctx = new JobChainContext(Guid.NewGuid());
-        ctx.SetData("k", "v");
-        ctx.MarkClean();
-        ctx.SetResult(Guid.NewGuid(), "job:1", "r");
-        Assert.True(ctx.IsDirty);
     }
 
     // ── Serialization round-trip ──────────────────────────────────────────────

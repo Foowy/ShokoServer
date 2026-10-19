@@ -80,8 +80,6 @@ public class JobChainContextRepository : IJobChainContextRepository
             });
             await db.SaveChangesAsync(ct);
         }
-
-        context.MarkClean();
     }
 
     public async Task DeleteAsync(Guid chainId, CancellationToken ct = default)
