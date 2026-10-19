@@ -163,14 +163,6 @@ public class WorkerPoolPriorityTests
         var udpPool = MakePool("UDP", 1, priority: 2, typeof(LowPriorityJob)); // mid-priority
         var defaultPool = MakePool("Default", 2, priority: AcquisitionAttribute.LowestPriority, typeof(LowPriorityJob));
 
-        // Note: both HighPriorityJob and LowPriorityJob used across pools here, so register
-        // them independently without going through the orchestrator's type routing.
-        // Instead re-wire TryRegisterExecuting manually to test AcquisitionFloor only.
-        httpPool.TryRegisterExecuting = _ => false;
-        udpPool.TryRegisterExecuting = _ => false;
-        defaultPool.TryRegisterExecuting = _ => false;
-
-        // Manually wire AcquisitionFloor using real pools at known priorities
         orchestrator.Initialize([], [httpPool, udpPool, defaultPool]);
 
         httpPool.AddToQueue(MakeJob(typeof(HighPriorityJob)));
@@ -189,15 +181,15 @@ public class WorkerPoolPriorityTests
         var udpPool = MakePool("UDP", 1, priority: 2, typeof(LowPriorityJob));
         var defaultPool = MakePool("Default", 3, priority: AcquisitionAttribute.LowestPriority, typeof(LowPriorityJob));
 
-        httpPool.TryRegisterExecuting = _ => false;
-        udpPool.TryRegisterExecuting = _ => false;
-        defaultPool.TryRegisterExecuting = _ => false;
 
         orchestrator.Initialize([], [httpPool, udpPool, defaultPool]);
 
         httpPool.AddToQueue(MakeJob(typeof(HighPriorityJob)));
+        for (var i = 0; i < 3; i++)
+            defaultPool.AddToQueue(MakeJob(typeof(LowPriorityJob)));
 
-        // UDP: reserved = 1 (HTTP only), available = 3 → 3 > 1 → proceeds
+        // UDP: reserved = 1 (HTTP only; Default has 3 runnable jobs but a lower priority, so it
+        // does not count), available = 3 → 3 > 1 → proceeds
         Assert.True(MayAcquireAny(udpPool));
     }
 
