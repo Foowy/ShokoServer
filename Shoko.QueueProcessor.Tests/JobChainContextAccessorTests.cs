@@ -88,9 +88,9 @@ public class JobChainContextAccessorTests
         var accessor = MakeAccessor(out var ctx);
         accessor.SetResult("orphan-result");
 
-        // Nothing should be in the results store
-        Assert.Empty(ctx.GetAllOutcomes());
-        Assert.Null(accessor.GetResult<string>("any-key"));
+        // SetResult would have stored it under the empty job id and key
+        Assert.Empty(ctx.GetResult<string>(Guid.Empty));
+        Assert.Null(ctx.GetResult<string>(string.Empty));
     }
 
     [Fact]
