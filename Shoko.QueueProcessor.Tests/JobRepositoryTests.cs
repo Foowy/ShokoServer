@@ -212,15 +212,15 @@ public class JobRepositoryTests
             var parentId = Guid.NewGuid();
             var child1 = FakeJob(parentJobId: parentId);
             var child2 = FakeJob(parentJobId: parentId);
-            var standalone = FakeJob();
+            var stillWaiting = FakeJob(parentJobId: parentId);
 
-            await repo.InsertBatchAsync([child1, child2, standalone], TestContext.Current.CancellationToken);
+            await repo.InsertBatchAsync([child1, child2, stillWaiting], TestContext.Current.CancellationToken);
             await repo.ActivateChainChildrenAsync([child1.Id, child2.Id], TestContext.Current.CancellationToken);
 
             var loaded = await repo.LoadAllAsync(TestContext.Current.CancellationToken);
             Assert.Null(loaded.Single(j => j.Id == child1.Id).ParentJobId);
             Assert.Null(loaded.Single(j => j.Id == child2.Id).ParentJobId);
-            Assert.Null(loaded.Single(j => j.Id == standalone.Id).ParentJobId);
+            Assert.Equal(parentId, loaded.Single(j => j.Id == stillWaiting.Id).ParentJobId);
         }
     }
 
