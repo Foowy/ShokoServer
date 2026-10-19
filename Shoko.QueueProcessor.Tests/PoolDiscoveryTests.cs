@@ -57,9 +57,6 @@ public class PoolDiscoveryTests
         public Task Process() => Task.CompletedTask;
     }
 
-    // Attribute used to associate a filter with UDP jobs
-    private class AniDBUdpAttribute : Attribute { }
-
     private PoolDiscovery MakeDiscovery(int maxTotal = 10, int defaultSize = 4) =>
         new(NullLogger<PoolDiscovery>.Instance, maxTotal, defaultSize);
 

@@ -79,7 +79,7 @@ public sealed class WorkerPool : IWorkerPool
     private long _lastActiveAtTicks;
 
     public string Name { get; }
-    public int MaxWorkers { get; internal set; }
+    public int MaxWorkers { get; }
     public int WorkerPriority { get; }
     public IReadOnlyList<Type> HandledTypes { get; }
     public IReadOnlyList<IAcquisitionFilter> AcquisitionFilters { get; }
