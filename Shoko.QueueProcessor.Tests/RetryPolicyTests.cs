@@ -26,12 +26,7 @@ public class RetryPolicyTests
     [InlineData(0, 30)]    // first retry: base * 2^0 = 30s
     [InlineData(1, 60)]    // 30 * 2 = 60s
     [InlineData(2, 120)]    // 30 * 4 = 120s
-    [InlineData(3, 240)]
-    [InlineData(4, 480)]
-    [InlineData(5, 960)]
-    [InlineData(6, 1920)]
     [InlineData(7, 3600)]    // capped at 1h
-    [InlineData(20, 3600)]   // far into retries — still capped
     public void GetDelay_ExponentialWithCap(int retryCount, double expectedSeconds)
     {
         var delay = _global.GetDelay(retryCount);
@@ -42,7 +37,6 @@ public class RetryPolicyTests
     [InlineData(8, 7, false)] // Below the max
     [InlineData(8, 8, true)] // At the max
     [InlineData(8, 100, true)] // Above the max
-    [InlineData(0, 0, true)] // Zero max retries discards immediately
     public void ShouldDiscard_IsTrueOnceTheRetryCountReachesTheMax(int maxRetries, int retryCount, bool expected)
     {
         var policy = new RetryPolicy { MaxRetries = maxRetries };

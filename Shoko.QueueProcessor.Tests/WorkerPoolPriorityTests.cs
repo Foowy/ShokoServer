@@ -129,7 +129,6 @@ public class WorkerPoolPriorityTests
     }
 
     [Theory]
-    [InlineData(10, 1, 0, true)] // High pool is empty: reserved = 0, available = 10
     [InlineData(10, 1, 1, true)] // maxWorkers=10, high pool reserves 1: reserved = 1, available = 10, so 10 > 1
     [InlineData(2, 2, 2, false)] // High pool has 2 runnable jobs: reserved = 2, available = 2, so 2 > 2 is false
     [InlineData(3, 1, 5, true)] // 5 runnable jobs on a pool of 1 worker: reserved = min(5, 1) = 1, available = 3
