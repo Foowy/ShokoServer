@@ -99,8 +99,7 @@ public class JobKeyBuilderTests
             .UsingJobData(j => j.FilePath = "/anime/ep01.mkv")
             .Build();
 
-        Assert.Contains("FilePath", key);
-        Assert.Contains("ep01.mkv", key);
+        Assert.Equal(typeof(SimpleJob).FullName + "_FilePath:\"/anime/ep01.mkv\"", key);
     }
 
     [Fact]

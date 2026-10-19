@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Shoko.QueueProcessor.Abstractions;
 using Shoko.QueueProcessor.Builder;
 using Xunit;
@@ -46,10 +47,8 @@ public class JobDataSerializerTests
         var job = new FullJob { FilePath = "/test.mkv", ForceHash = true, AnimeId = 42 };
         var json = JobDataSerializer.Serialize(job);
 
-        Assert.Contains("FilePath", json);
-        Assert.Contains("/test.mkv", json);
-        Assert.Contains("ForceHash", json);
-        Assert.Contains("AnimeId", json);
+        var expected = """{"FilePath":"/test.mkv","ForceHash":true,"AnimeId":42,"NullableId":null}""";
+        Assert.True(JToken.DeepEquals(JToken.Parse(expected), JToken.Parse(json)), json);
     }
 
     [Fact]
