@@ -248,8 +248,11 @@ public class WorkerPoolAcquisitionTests
     public void RunnableCount_AfterAddJob_ReturnsOne()
     {
         var pool = MakePool(typeof(JobTypeA));
+        Assert.Equal(0, pool.RunnableCount(pool.MaxWorkers));
+
         pool.AddToQueue(MakeJob(typeof(JobTypeA)));
-        Assert.Equal(1, pool.RunnableCount());
+
+        Assert.Equal(1, pool.RunnableCount(pool.MaxWorkers));
     }
 
     [Fact]
@@ -278,10 +281,11 @@ public class WorkerPoolAcquisitionTests
         var job = MakeJob(typeof(JobTypeA));
         pool.AddToQueue(job);
         pool.AddToQueue(MakeJob(typeof(JobTypeA)));
+        Assert.Equal(2, pool.RunnableCount(pool.MaxWorkers));
 
         pool.RemoveFromQueue(job.Id);
 
-        Assert.Equal(1, pool.RunnableCount());
+        Assert.Equal(1, pool.RunnableCount(pool.MaxWorkers));
     }
 
     [Fact]
