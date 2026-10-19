@@ -157,10 +157,32 @@ public class JobChainContextRepositoryTests
         }
     }
 
+    [Fact]
+    public async Task SaveAsync_ExistingChain_PersistsAChangedStatus()
+    {
+        var (keeper, cs, _) = await CreateAsync();
+        await using (keeper)
+        {
+            foreach (var status in new[] { ChainStatus.Active, ChainStatus.Aborted, ChainStatus.Completed })
+            {
+                var chainId = Guid.NewGuid();
+                var initial = status == ChainStatus.Active ? ChainStatus.Completed : ChainStatus.Active;
+                var context = new JobChainContext(chainId, initial);
+                await FreshRepo(cs).SaveAsync(context, TestContext.Current.CancellationToken);
+
+                context.SetStatus(status);
+                await FreshRepo(cs).SaveAsync(context, TestContext.Current.CancellationToken);
+
+                var loaded = await FreshRepo(cs).GetAsync(chainId, TestContext.Current.CancellationToken);
+                Assert.Equal(status, loaded!.Status);
+            }
+        }
+    }
+
     // ── AddOutcomesAsync ──────────────────────────────────────────────────────
 
     [Fact]
-    public async Task AddOutcomesAsync_BatchAdd_AllOutcomesPersisted()
+    public async Task AddOutcomesAsync_BatchAdd_AppendsToExistingOutcomes()
     {
         var (keeper, cs, repo) = await CreateAsync();
         await using (keeper)
@@ -168,9 +190,9 @@ public class JobChainContextRepositoryTests
             var chainId = Guid.NewGuid();
             await repo.GetOrCreateAsync(chainId, TestContext.Current.CancellationToken);
 
+            await FreshRepo(cs).AddOutcomesAsync(chainId, [MakeOutcome("TypeA")], TestContext.Current.CancellationToken);
             var outcomes = new[]
             {
-                MakeOutcome("TypeA"),
                 MakeOutcome("TypeB", JobOutcomeStatus.Failed),
                 MakeOutcome("TypeC", JobOutcomeStatus.Aborted),
             };
