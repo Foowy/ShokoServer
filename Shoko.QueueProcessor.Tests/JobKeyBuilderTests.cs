@@ -45,12 +45,13 @@ public class JobKeyBuilderTests
         public void PostInit() { }
         public Task Process() => Task.CompletedTask;
 
-        // Explicit annotation with stable id and ordering
-        [JobKeyMember("path", index: 0)]
-        public string FilePath { get; set; } = string.Empty;
-
+        // Explicit annotation with stable id and ordering. Declared in the opposite order to
+        // their index so that ignoring the index changes the key.
         [JobKeyMember("force", index: 1)]
         public bool ForceHash { get; set; }
+
+        [JobKeyMember("path", index: 0)]
+        public string FilePath { get; set; } = string.Empty;
 
         // Not a key member — should not appear in the key
         public string InternalState { get; set; } = string.Empty;
