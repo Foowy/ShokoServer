@@ -111,7 +111,7 @@ public class QueueMetricsTests
     // ── Thread-safety smoke test ──────────────────────────────────────────────
 
     [Fact]
-    public void ConcurrentWrites_DoNotThrow()
+    public void ConcurrentWrites_DoNotLoseCounts()
     {
         var metrics = new QueueMetrics(windowSeconds: 60, rollingAvgSamples: 50);
         var exceptions = new ConcurrentBag<Exception>();
@@ -138,5 +138,9 @@ public class QueueMetricsTests
         foreach (var t in threads) t.Join();
 
         Assert.Empty(exceptions);
+
+        var snap = metrics.GetSnapshot(new Dictionary<string, PoolStatus>(), new Dictionary<string, (int, int)>(), new Dictionary<string, string>(), 0, 0);
+        Assert.Equal(threads.Length * 500L, snap.ByType["Job"].TotalCompleted);
+        Assert.Equal(threads.Length * 500L, snap.ByType["Job"].TotalFailed);
     }
 }
