@@ -289,16 +289,10 @@ public class RunAfterCurrentTests
         // Child registration preserved; child not yet in pool
         Assert.Equal(0, childPool.WaitingCount);
 
-        // Parent runs again (same ID) and completes successfully.
-        // Directly register so orchestrator knows it's executing again.
-        orchestrator.TryRegisterExecuting(new QueuedJob
-        {
-            Id = parentId,
-            JobType = parentJob.JobType,
-            JobKey = parentJob.JobKey,
-            Priority = parentJob.Priority,
-            QueuedAt = DateTimeOffset.UtcNow,
-        });
+        // The re-queued parent (same ID) is picked up again and completes successfully.
+        var rerun = parentPool.TryAcquire();
+        Assert.NotNull(rerun);
+        Assert.Equal(parentId, rerun!.Id);
 
         orchestrator.OnComplete(parentId);
 
